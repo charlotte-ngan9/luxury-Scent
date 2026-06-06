@@ -1,0 +1,70 @@
+{
+    "produits": [
+      {
+        "id": 1,
+        "nom": "Le Bain du Roi",
+        "description": "Accord somptueux d'ambre chaud, de musc blanc et de bois de santal. Enveloppant, profond.",
+        "famille": "Orientale",
+        "prix": 39.90,
+        "image": "images/bainduroi.jpg",
+        "cible": "mixte",
+        "intensite": "fort",
+        "notes": ["ambre", "musc", "bois"]
+      },
+      {
+        "id": 2,
+        "nom": "Mercure",
+        "description": "Bergamote citronnée, poivre noir et cèdre fumé. Vif, électrique.",
+        "famille": "Boisée",
+        "prix": 39.90,
+        "image": "images/mercure.jpg",
+        "cible": "homme",
+        "intensite": "modere",
+        "notes": ["agrumes", "poivre", "bois"]
+      },
+      {
+        "id": 3,
+        "nom": "Perfection Male",
+        "description": "Chypré viril aux accords de cuir, vétiver terreux et notes aquatiques.",
+        "famille": "Chypré",
+        "prix": 44.90,
+        "image": "images/perfection.jpg",
+        "cible": "homme",
+        "intensite": "fort",
+        "notes": ["cuir", "vetiver", "aquatique"]
+      },
+      {
+        "id": 4,
+        "nom": "Paillettes d'Or",
+        "description": "Jasmin, ylang-ylang et vanille crémeuse sur fond de patchouli.",
+        "famille": "Florale",
+        "prix": 39.90,
+        "image": "images/paillettes.jpg",
+        "cible": "femme",
+        "intensite": "modere",
+        "notes": ["jasmin", "vanille", "patchouli"]
+      },
+      {
+        "id": 5,
+        "nom": "Orchidée Princière",
+        "description": "Orchidée sauvage, lychee et rose sur fond de cèdre blanc.",
+        "famille": "Florale",
+        "prix": 44.90,
+        "image": "images/orchidee.jpg",
+        "cible": "femme",
+        "intensite": "leger",
+        "notes": ["orchidee", "rose", "bois"]
+      },
+      {
+        "id": 6,
+        "nom": "Noces de Diamant",
+        "description": "Bouquet floral blanc, iris poudré, vanille et bois précieux.",
+        "famille": "Florale",
+        "prix": 49.90,
+        "image": "images/noces.jpg",
+        "cible": "mixte",
+        "intensite": "leger",
+        "notes": ["fleurs blanches", "iris", "vanille"]
+      }
+    ]
+  }

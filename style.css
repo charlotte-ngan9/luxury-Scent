@@ -1,0 +1,207 @@
+/* RESET & BASE */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #FAF7F0;
+    color: #1A1A1A;
+    line-height: 1.6;
+}
+
+h1, h2, h3, .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+}
+
+/* HEADER */
+header {
+    background-color: #1A1A1A;
+    color: #FAF7F0;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.logo {
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    color: #B8960A;
+}
+
+nav a {
+    color: #FAF7F0;
+    text-decoration: none;
+    margin-left: 1.5rem;
+    font-weight: 400;
+    transition: color 0.3s;
+}
+
+nav a:hover {
+    color: #B8960A;
+}
+
+/* BOUTONS */
+.btn-gold {
+    display: inline-block;
+    background-color: #B8960A;
+    color: #1A1A1A;
+    padding: 0.8rem 1.8rem;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 30px;
+    transition: background 0.3s;
+}
+
+.btn-gold:hover {
+    background-color: #9a7a08;
+}
+
+/* HERO */
+.hero {
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('images/hero-bg.jpg') center/cover;
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    padding: 2rem;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* GRILLE PRODUITS */
+.grid-produits {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: auto;
+}
+
+.produit-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+.produit-card:hover {
+    transform: translateY(-5px);
+}
+
+.produit-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.produit-card h3 {
+    margin: 1rem 1rem 0.5rem;
+    font-size: 1.5rem;
+}
+
+.produit-card p {
+    margin: 0 1rem 1rem;
+    color: #555;
+}
+
+.prix {
+    font-weight: bold;
+    color: #B8960A;
+    font-size: 1.3rem;
+    margin: 0 1rem;
+}
+
+.btn-ajout {
+    display: block;
+    background: #1A1A1A;
+    color: white;
+    text-align: center;
+    padding: 0.7rem;
+    text-decoration: none;
+    margin: 1rem;
+    border-radius: 40px;
+    transition: background 0.3s;
+}
+
+.btn-ajout:hover {
+    background: #B8960A;
+    color: #1A1A1A;
+}
+
+/* FORMULAIRES (quiz, contact) */
+.form-quiz, .form-contact {
+    max-width: 600px;
+    margin: 2rem auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+select, input, textarea {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+}
+
+button {
+    background-color: #B8960A;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 40px;
+    width: 100%;
+    font-size: 1rem;
+}
+
+/* PANIER */
+.panier-recap {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 20px;
+}
+
+.panier-item {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+
+/* FOOTER */
+footer {
+    background: #1A1A1A;
+    color: #FAF7F0;
+    text-align: center;
+    padding: 2rem;
+    margin-top: 3rem;
+}
