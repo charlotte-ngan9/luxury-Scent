@@ -1,16 +1,619 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atelier de Mixage — Luxury Scent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --gold:#C9A84C; --gold-light:#E8C97A; --gold-dim:rgba(201,168,76,0.30);
+      --gold-subtle:rgba(201,168,76,0.08); --black:#090909; --black-soft:#0E0E0E;
+      --black-card:#141414; --black-hover:#1C1C1C; --white:#FAF8F3;
+      --white-muted:rgba(250,248,243,0.55); --white-dim:rgba(250,248,243,0.22);
+    }
+    html { scroll-behavior:smooth; }
+    body { background:var(--black); color:var(--white); font-family:'Cormorant Garamond',Georgia,serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+    a { text-decoration:none; color:inherit; }
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-track { background:var(--black); }
+    ::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:2px; }
 
-Rose de Grasse	Florale	Rose, géranium, poudré
-Jasmin Sambac	Florale	Jasmin, miel, indole
-Oud Arabe	Boisée-Orientale	Oud, résine, fumé
-Santal de Mysore	Boisée	Santal, crémeux, doux
-Vétiver d'Haïti	Boisée-Terreuse	Terre, bois fumé, herbacé
-Patchouli de Sumatra	Boisée-Terreuse	Patchouli, mousse, sombre
-Bergamote de Calabre	Hespéridée	Agrumes, floral, frais
-Iris de Florence	Florale-Poudrée	Iris, violette, poudré
-Ambre Gris	Orientale	Ambre, musc, chaud
-Musc Blanc	Musquée	Musc propre, peau, doux
-Ylang-Ylang des Comores	Florale	Fleur tropicale, crémeux, banane
-Cèdre de Virginie	Boisée	Bois sec, crayon, propre
-Fève Tonka du Brésil	Gourmande-Orientale	Vanille, coumarine, amande
-Poivre Noir de Madagascar	Épicée	Poivre, épices, cuir
-Vanille Bourbon	Gourmande-Orientale	Vanille, baume, sucré
+    /* NAV */
+    nav { position:fixed; top:0; left:0; right:0; z-index:999; display:flex; align-items:center; justify-content:space-between; padding:1.4rem 5rem; background:rgba(9,9,9,0.96); border-bottom:0.5px solid rgba(201,168,76,0.18); backdrop-filter:blur(12px); }
+    .nav-logo { font-family:'Cinzel',serif; font-size:1rem; font-weight:600; letter-spacing:0.3em; color:var(--gold); }
+    .nav-links { display:flex; gap:3rem; list-style:none; }
+    .nav-links a { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.22em; color:var(--white-muted); text-transform:uppercase; transition:color 0.3s; position:relative; }
+    .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:0.5px; background:var(--gold); transition:width 0.3s; }
+    .nav-links a:hover, .nav-links a.active { color:var(--gold); }
+    .nav-links a:hover::after, .nav-links a.active::after { width:100%; }
+    .nav-cta { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.2em; color:var(--gold); border:0.5px solid var(--gold); padding:0.55rem 1.4rem; text-transform:uppercase; transition:all 0.3s; }
+    .nav-cta:hover { background:var(--gold); color:var(--black); }
+
+    /* HEADER */
+    .page-header { padding:10rem 5rem 5rem; text-align:center; position:relative; overflow:hidden; }
+    .page-header::before { content:''; position:absolute; top:-10%; left:50%; transform:translateX(-50%); width:700px; height:700px; background:radial-gradient(circle,rgba(201,168,76,0.055) 0%,transparent 65%); pointer-events:none; }
+    .page-header::after { content:''; position:absolute; inset:0; background-image:radial-gradient(circle,rgba(201,168,76,0.05) 1px,transparent 1px); background-size:42px 42px; pointer-events:none; opacity:0.5; }
+    .page-header-inner { position:relative; z-index:1; }
+    .page-eyebrow { display:inline-flex; align-items:center; gap:1rem; font-family:'Cinzel',serif; font-size:0.62rem; letter-spacing:0.45em; color:var(--gold); border:0.5px solid var(--gold-dim); padding:0.5rem 2rem; margin-bottom:2rem; text-transform:uppercase; }
+    .page-eyebrow span { opacity:0.45; font-size:0.5rem; }
+    .page-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.8rem,6vw,5rem); font-weight:300; line-height:1.1; color:var(--white); margin-bottom:0.75rem; }
+    .page-title em { font-style:italic; color:var(--gold); }
+    .page-subtitle { font-size:1.1rem; font-weight:300; font-style:italic; color:var(--white-muted); letter-spacing:0.08em; max-width:520px; margin:0 auto; }
+
+    /* STEPS INDICATOR */
+    .steps-bar { display:flex; align-items:center; justify-content:center; gap:0; padding:3rem 5rem; border-bottom:0.5px solid rgba(201,168,76,0.1); }
+    .step-item { display:flex; align-items:center; gap:1rem; }
+    .step-circle { width:36px; height:36px; border-radius:50%; border:0.5px solid rgba(201,168,76,0.3); display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:0.65rem; color:var(--white-muted); transition:all 0.4s; flex-shrink:0; }
+    .step-circle.active { background:var(--gold); border-color:var(--gold); color:var(--black); }
+    .step-circle.done { background:rgba(201,168,76,0.15); border-color:var(--gold); color:var(--gold); }
+    .step-label { font-family:'Cinzel',serif; font-size:0.62rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--white-muted); transition:color 0.4s; white-space:nowrap; }
+    .step-label.active { color:var(--gold); }
+    .step-connector { width:60px; height:0.5px; background:rgba(201,168,76,0.15); margin:0 1rem; flex-shrink:0; }
+    .step-connector.done { background:var(--gold); }
+
+    /* MAIN LAYOUT */
+    .workshop { display:grid; grid-template-columns:1fr 380px; gap:2rem; padding:4rem 5rem 8rem; align-items:start; }
+
+    /* LEFT — ingredient panels */
+    .workshop-left {}
+
+    .panel { display:none; animation:panelIn 0.5s cubic-bezier(.16,1,.3,1) both; }
+    .panel.active { display:block; }
+    @keyframes panelIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
+
+    .panel-header { margin-bottom:2.5rem; }
+    .panel-step-num { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.4em; color:rgba(201,168,76,0.45); display:block; margin-bottom:0.6rem; }
+    .panel-title { font-family:'Cormorant Garamond',serif; font-size:clamp(1.8rem,3vw,2.4rem); font-weight:300; color:var(--white); margin-bottom:0.4rem; }
+    .panel-title em { font-style:italic; color:var(--gold); }
+    .panel-hint { font-size:0.95rem; font-weight:300; font-style:italic; color:var(--white-muted); line-height:1.7; }
+    .panel-hr { width:45px; height:0.5px; background:linear-gradient(90deg,var(--gold),transparent); margin:1.5rem 0; }
+
+    /* Category filter */
+    .cat-tabs { display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .cat-tab { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--white-muted); background:transparent; border:0.5px solid rgba(201,168,76,0.15); padding:0.45rem 1rem; cursor:pointer; transition:all 0.25s; }
+    .cat-tab:hover { color:var(--gold); border-color:var(--gold-dim); }
+    .cat-tab.active { color:var(--black); background:var(--gold); border-color:var(--gold); }
+
+    /* Ingredient grid */
+    .ingredients-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .ing-card { background:var(--black-card); border:0.5px solid rgba(201,168,76,0.1); padding:1.4rem 1.6rem; cursor:pointer; transition:all 0.3s cubic-bezier(.16,1,.3,1); position:relative; overflow:hidden; }
+    .ing-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); opacity:0; transition:opacity 0.3s; }
+    .ing-card:hover { border-color:rgba(201,168,76,0.4); background:var(--black-hover); }
+    .ing-card:hover::before { opacity:1; }
+    .ing-card.selected { border-color:var(--gold); background:rgba(201,168,76,0.07); }
+    .ing-card.selected::before { opacity:1; }
+    .ing-card.disabled { opacity:0.3; cursor:not-allowed; pointer-events:none; }
+
+    .ing-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.6rem; }
+    .ing-icon { font-size:1.6rem; }
+    .ing-check { width:16px; height:16px; border:0.5px solid var(--gold-dim); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.55rem; color:transparent; transition:all 0.25s; flex-shrink:0; }
+    .ing-card.selected .ing-check { background:var(--gold); border-color:var(--gold); color:var(--black); }
+    .ing-name { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.12em; color:var(--white); text-transform:uppercase; margin-bottom:0.25rem; }
+    .ing-origin { font-family:'Cinzel',serif; font-size:0.56rem; letter-spacing:0.15em; color:var(--gold); text-transform:uppercase; margin-bottom:0.5rem; display:block; }
+    .ing-desc { font-size:0.85rem; font-weight:300; font-style:italic; color:var(--white-muted); line-height:1.55; }
+    .ing-family { position:absolute; bottom:1rem; right:1rem; font-family:'Cinzel',serif; font-size:0.5rem; letter-spacing:0.15em; color:rgba(201,168,76,0.35); text-transform:uppercase; }
+
+    /* Proportion slider (step 2) */
+    .proportion-list { display:flex; flex-direction:column; gap:1.5rem; }
+    .prop-item { background:var(--black-card); border:0.5px solid rgba(201,168,76,0.1); padding:1.5rem 1.8rem; }
+    .prop-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+    .prop-name { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.15em; color:var(--white); text-transform:uppercase; }
+    .prop-pct { font-family:'Cinzel',serif; font-size:0.8rem; letter-spacing:0.1em; color:var(--gold); min-width:40px; text-align:right; }
+    .prop-slider { width:100%; height:2px; appearance:none; background:rgba(201,168,76,0.15); border-radius:1px; outline:none; cursor:pointer; }
+    .prop-slider::-webkit-slider-thumb { appearance:none; width:18px; height:18px; background:var(--gold); border-radius:50%; box-shadow:0 0 8px rgba(201,168,76,0.4); cursor:pointer; }
+    .prop-note { font-size:0.8rem; font-style:italic; color:var(--white-dim); margin-top:0.5rem; }
+    .total-bar { margin-top:2rem; padding:1.2rem 1.8rem; background:var(--black-card); border:0.5px solid rgba(201,168,76,0.15); display:flex; justify-content:space-between; align-items:center; }
+    .total-label { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.25em; color:var(--white-muted); text-transform:uppercase; }
+    .total-val { font-family:'Cinzel',serif; font-size:0.9rem; letter-spacing:0.15em; color:var(--gold); }
+    .total-warn { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.15em; color:#e07070; text-transform:uppercase; }
+
+    /* Step 3 — naming */
+    .naming-section { display:flex; flex-direction:column; gap:1.8rem; }
+    .field-label { font-family:'Cinzel',serif; font-size:0.62rem; letter-spacing:0.3em; color:rgba(201,168,76,0.6); text-transform:uppercase; display:block; margin-bottom:0.6rem; }
+    .text-input { width:100%; background:var(--black-card); border:0.5px solid rgba(201,168,76,0.2); color:var(--white); font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-style:italic; padding:1rem 1.4rem; outline:none; transition:border-color 0.3s; }
+    .text-input:focus { border-color:var(--gold); }
+    .text-input::placeholder { color:var(--white-dim); }
+    .textarea-input { width:100%; background:var(--black-card); border:0.5px solid rgba(201,168,76,0.2); color:var(--white); font-family:'Cormorant Garamond',serif; font-size:1rem; font-style:italic; padding:1rem 1.4rem; outline:none; transition:border-color 0.3s; resize:vertical; min-height:100px; }
+    .textarea-input:focus { border-color:var(--gold); }
+    .textarea-input::placeholder { color:var(--white-dim); }
+    .volume-opts { display:flex; gap:0.8rem; flex-wrap:wrap; }
+    .vol-btn { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--white-muted); background:transparent; border:0.5px solid rgba(201,168,76,0.15); padding:0.6rem 1.3rem; cursor:pointer; transition:all 0.25s; }
+    .vol-btn:hover { color:var(--gold); border-color:var(--gold-dim); }
+    .vol-btn.active { background:var(--gold); border-color:var(--gold); color:var(--black); }
+    .name-suggestions { display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.5rem; }
+    .suggestion { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.15em; text-transform:uppercase; color:rgba(201,168,76,0.5); border:0.5px solid rgba(201,168,76,0.2); padding:0.3rem 0.75rem; cursor:pointer; transition:all 0.25s; }
+    .suggestion:hover { color:var(--gold); border-color:var(--gold-dim); }
+
+    /* PANEL NAV BUTTONS */
+    .panel-nav { display:flex; justify-content:space-between; align-items:center; margin-top:3rem; padding-top:2rem; border-top:0.5px solid rgba(201,168,76,0.1); }
+    .btn-prev { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--white-muted); background:transparent; border:none; cursor:pointer; transition:color 0.3s; display:flex; align-items:center; gap:0.5rem; }
+    .btn-prev:hover { color:var(--gold); }
+    .btn-prev:disabled { opacity:0.2; cursor:not-allowed; }
+    .btn-next-main { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--black); background:var(--gold); border:none; padding:1rem 2.5rem; cursor:pointer; transition:all 0.3s; }
+    .btn-next-main:hover { background:var(--gold-light); transform:translateY(-2px); }
+    .btn-next-main:disabled { opacity:0.35; cursor:not-allowed; transform:none; }
+
+    /* RIGHT — summary */
+    .summary-panel { position:sticky; top:8rem; }
+    .summary-box { background:var(--black-card); border:0.5px solid rgba(201,168,76,0.18); padding:2rem; }
+    .summary-title { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.35em; color:var(--gold); text-transform:uppercase; margin-bottom:1.8rem; display:flex; align-items:center; gap:0.8rem; }
+    .summary-title::after { content:''; flex:1; height:0.5px; background:linear-gradient(90deg,var(--gold-dim),transparent); }
+
+    .summary-flacon { width:100%; height:160px; background:linear-gradient(145deg,#130F08,#1F1808,#130F08); display:flex; align-items:center; justify-content:center; position:relative; margin-bottom:1.8rem; overflow:hidden; }
+    .summary-flacon::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 40%,rgba(201,168,76,0.1),transparent 65%); }
+    .flacon-emoji { font-size:4rem; position:relative; z-index:1; filter:drop-shadow(0 0 20px rgba(201,168,76,0.3)); }
+    .flacon-name { position:absolute; bottom:1rem; left:0; right:0; text-align:center; font-family:'Cormorant Garamond',serif; font-size:0.95rem; font-style:italic; color:var(--gold); }
+
+    .summary-section-label { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.3em; color:rgba(201,168,76,0.4); text-transform:uppercase; margin-bottom:0.8rem; display:block; }
+    .summary-ingredients { display:flex; flex-direction:column; gap:0.5rem; margin-bottom:1.8rem; min-height:60px; }
+    .sum-ing { display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:0.5px solid rgba(201,168,76,0.07); }
+    .sum-ing-name { font-size:0.9rem; font-style:italic; color:var(--white-muted); }
+    .sum-ing-pct { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.1em; color:var(--gold); }
+    .sum-empty { font-size:0.88rem; font-style:italic; color:var(--white-dim); text-align:center; padding:1.5rem 0; }
+
+    /* Accord visual */
+    .accord-bar-wrap { margin-bottom:1.8rem; }
+    .accord-row { display:flex; align-items:center; gap:0.8rem; margin-bottom:0.6rem; }
+    .accord-label { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.15em; color:var(--white-muted); text-transform:uppercase; width:70px; flex-shrink:0; }
+    .accord-track { flex:1; height:3px; background:rgba(201,168,76,0.1); border-radius:1.5px; overflow:hidden; }
+    .accord-fill { height:100%; background:var(--gold); border-radius:1.5px; transition:width 0.6s cubic-bezier(.16,1,.3,1); width:0%; }
+
+    .summary-price { background:rgba(201,168,76,0.06); border:0.5px solid rgba(201,168,76,0.12); padding:1.2rem 1.4rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+    .price-label { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.25em; color:var(--white-muted); text-transform:uppercase; }
+    .price-val { font-family:'Cinzel',serif; font-size:1rem; letter-spacing:0.1em; color:var(--gold); }
+
+    .btn-command { width:100%; font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--black); background:var(--gold); border:none; padding:1.1rem; cursor:pointer; transition:all 0.3s; margin-bottom:0.8rem; }
+    .btn-command:hover { background:var(--gold-light); }
+    .btn-command:disabled { opacity:0.3; cursor:not-allowed; }
+    .btn-reset { width:100%; font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--white-muted); background:transparent; border:0.5px solid rgba(201,168,76,0.15); padding:0.75rem; cursor:pointer; transition:all 0.3s; }
+    .btn-reset:hover { color:var(--gold); border-color:var(--gold-dim); }
+
+    /* SUCCESS */
+    .success-overlay { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.92); backdrop-filter:blur(12px); align-items:center; justify-content:center; padding:2rem; }
+    .success-overlay.open { display:flex; }
+    .success-modal { background:var(--black-card); border:0.5px solid rgba(201,168,76,0.3); max-width:560px; width:100%; padding:4rem; text-align:center; animation:modalIn 0.5s cubic-bezier(.16,1,.3,1) both; }
+    @keyframes modalIn { from{opacity:0;transform:scale(0.95) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .success-icon { font-size:4rem; margin-bottom:1.5rem; display:block; }
+    .success-eyebrow { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.4em; color:var(--gold); text-transform:uppercase; margin-bottom:1.5rem; }
+    .success-title { font-family:'Cormorant Garamond',serif; font-size:2.2rem; font-weight:300; color:var(--white); margin-bottom:0.5rem; }
+    .success-title em { font-style:italic; color:var(--gold); }
+    .success-sub { font-size:1rem; font-weight:300; font-style:italic; color:var(--white-muted); margin-bottom:2.5rem; line-height:1.7; }
+    .success-hr { width:50px; height:0.5px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:0 auto 2.5rem; }
+    .success-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+    .btn-gold { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--black); background:var(--gold); border:none; padding:1rem 2rem; cursor:pointer; transition:all 0.3s; display:inline-block; text-decoration:none; }
+    .btn-gold:hover { background:var(--gold-light); }
+    .btn-outline { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); background:transparent; border:0.5px solid var(--gold); padding:1rem 2rem; cursor:pointer; transition:all 0.3s; display:inline-block; text-decoration:none; }
+    .btn-outline:hover { background:var(--gold-subtle); }
+
+    /* FOOTER */
+    footer { background:var(--black); border-top:0.5px solid rgba(201,168,76,0.15); padding:2.5rem 5rem; display:flex; justify-content:space-between; align-items:center; }
+    .footer-logo { font-family:'Cinzel',serif; font-size:0.9rem; letter-spacing:0.3em; color:var(--gold); }
+    .footer-text { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.22em; color:rgba(250,248,243,0.25); text-transform:uppercase; }
+
+    /* REVEAL */
+    .reveal { opacity:0; transform:translateY(24px); transition:opacity 0.7s cubic-bezier(.16,1,.3,1),transform 0.7s cubic-bezier(.16,1,.3,1); }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    @media (max-width:1100px) { .workshop { grid-template-columns:1fr; } .summary-panel { position:static; } nav{padding:1.2rem 2.5rem} .page-header,.steps-bar,.workshop{padding-left:2.5rem;padding-right:2.5rem} }
+    @media (max-width:640px) { nav{padding:1rem 1.5rem} .nav-links{display:none} .page-header,.steps-bar,.workshop{padding-left:1.5rem;padding-right:1.5rem} .ingredients-grid{grid-template-columns:1fr} .steps-bar{flex-wrap:wrap;gap:1rem} .step-connector{display:none} footer{flex-direction:column;gap:0.75rem;padding:2rem 1.5rem;text-align:center} }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">✦ Luxury Scent</div>
+  <ul class="nav-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="catalogue.html">Catalogue</a></li>
+    <li><a href="quiz.html">Quiz Olfactif</a></li>
+    <li><a href="mixage.html" class="active">Mixage</a></li>
+  </ul>
+  <a href="panier.html" class="nav-cta">Panier (0)</a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow"><span>✦</span> Atelier de Mixage <span>✦</span></div>
+    <h1 class="page-title">Créez votre<br>parfum <em>signature</em></h1>
+    <p class="page-subtitle">Sélectionnez vos matières premières, ajustez les proportions, nommez votre création. Votre fragrance unique vous attend.</p>
+  </div>
+</div>
+
+<!-- STEPS BAR -->
+<div class="steps-bar reveal">
+  <div class="step-item">
+    <div class="step-circle active" id="sc-1">1</div>
+    <span class="step-label active" id="sl-1">Ingrédients</span>
+  </div>
+  <div class="step-connector" id="conn-1"></div>
+  <div class="step-item">
+    <div class="step-circle" id="sc-2">2</div>
+    <span class="step-label" id="sl-2">Proportions</span>
+  </div>
+  <div class="step-connector" id="conn-2"></div>
+  <div class="step-item">
+    <div class="step-circle" id="sc-3">3</div>
+    <span class="step-label" id="sl-3">Finalisation</span>
+  </div>
+</div>
+
+<!-- WORKSHOP -->
+<div class="workshop">
+
+  <!-- LEFT -->
+  <div class="workshop-left">
+
+    <!-- PANEL 1 : SELECTION -->
+    <div class="panel active" id="panel-1">
+      <div class="panel-header">
+        <span class="panel-step-num">Étape 01 / 03</span>
+        <h2 class="panel-title">Choisissez vos<br><em>matières premières</em></h2>
+        <div class="panel-hr"></div>
+        <p class="panel-hint">Sélectionnez entre 2 et 4 ingrédients. Chaque matière apporte une dimension unique à votre création.</p>
+      </div>
+
+      <div class="cat-tabs" id="cat-tabs">
+        <button class="cat-tab active" data-cat="tous">Toutes</button>
+        <button class="cat-tab" data-cat="Florale">Florale</button>
+        <button class="cat-tab" data-cat="Boisée">Boisée</button>
+        <button class="cat-tab" data-cat="Orientale">Orientale</button>
+        <button class="cat-tab" data-cat="Hespéridée">Hespéridée</button>
+        <button class="cat-tab" data-cat="Gourmande">Gourmande</button>
+        <button class="cat-tab" data-cat="Épicée">Épicée</button>
+        <button class="cat-tab" data-cat="Musquée">Musquée</button>
+      </div>
+
+      <div class="ingredients-grid" id="ing-grid"></div>
+
+      <div class="panel-nav">
+        <button class="btn-prev" disabled>← Précédent</button>
+        <button class="btn-next-main" id="btn-to-2" onclick="goToStep(2)" disabled>Proportions →</button>
+      </div>
+    </div>
+
+    <!-- PANEL 2 : PROPORTIONS -->
+    <div class="panel" id="panel-2">
+      <div class="panel-header">
+        <span class="panel-step-num">Étape 02 / 03</span>
+        <h2 class="panel-title">Ajustez les<br><em>proportions</em></h2>
+        <div class="panel-hr"></div>
+        <p class="panel-hint">Équilibrez les notes de tête, de cœur et de fond. Le total doit avoisiner 100 % pour un accord harmonieux.</p>
+      </div>
+      <div class="proportion-list" id="proportion-list"></div>
+      <div class="total-bar">
+        <span class="total-label">Total</span>
+        <span id="total-display" class="total-val">0 %</span>
+      </div>
+      <div class="panel-nav">
+        <button class="btn-prev" onclick="goToStep(1)">← Précédent</button>
+        <button class="btn-next-main" onclick="goToStep(3)">Finaliser →</button>
+      </div>
+    </div>
+
+    <!-- PANEL 3 : NAMING -->
+    <div class="panel" id="panel-3">
+      <div class="panel-header">
+        <span class="panel-step-num">Étape 03 / 03</span>
+        <h2 class="panel-title">Nommez votre<br><em>création</em></h2>
+        <div class="panel-hr"></div>
+        <p class="panel-hint">Donnez un nom et une âme à votre fragrance. Cette signature ne vous appartient qu'à vous.</p>
+      </div>
+      <div class="naming-section">
+        <div>
+          <label class="field-label">Nom de votre parfum</label>
+          <input type="text" class="text-input" id="perfume-name" placeholder="Ex : Éclat d'Orient, Brise de Jade…" oninput="updateName(this.value)" />
+          <div class="name-suggestions" id="name-suggestions"></div>
+        </div>
+        <div>
+          <label class="field-label">Volume souhaité</label>
+          <div class="volume-opts" id="volume-opts">
+            <button class="vol-btn" onclick="selectVol(this,'10 ml')">10 ml</button>
+            <button class="vol-btn active" onclick="selectVol(this,'30 ml')">30 ml</button>
+            <button class="vol-btn" onclick="selectVol(this,'50 ml')">50 ml</button>
+            <button class="vol-btn" onclick="selectVol(this,'100 ml')">100 ml</button>
+          </div>
+        </div>
+        <div>
+          <label class="field-label">Message personnel (optionnel)</label>
+          <textarea class="textarea-input" id="perfume-msg" placeholder="Pour l'étiquette de votre flacon ou en cadeau…"></textarea>
+        </div>
+      </div>
+      <div class="panel-nav">
+        <button class="btn-prev" onclick="goToStep(2)">← Précédent</button>
+        <button class="btn-next-main" onclick="submitOrder()">Commander ma création ✦</button>
+      </div>
+    </div>
+
+  </div><!-- end workshop-left -->
+
+  <!-- RIGHT — SUMMARY -->
+  <div class="summary-panel">
+    <div class="summary-box">
+      <div class="summary-title">Votre Création</div>
+
+      <div class="summary-flacon">
+        <span class="flacon-emoji" id="flacon-emoji">✦</span>
+        <span class="flacon-name" id="flacon-name">Sans titre</span>
+      </div>
+
+      <span class="summary-section-label">Ingrédients sélectionnés</span>
+      <div class="summary-ingredients" id="summary-ingredients">
+        <p class="sum-empty">Aucun ingrédient sélectionné</p>
+      </div>
+
+      <span class="summary-section-label">Accord olfactif</span>
+      <div class="accord-bar-wrap">
+        <div class="accord-row"><span class="accord-label">Floral</span><div class="accord-track"><div class="accord-fill" id="acc-floral"></div></div></div>
+        <div class="accord-row"><span class="accord-label">Boisé</span><div class="accord-track"><div class="accord-fill" id="acc-boise"></div></div></div>
+        <div class="accord-row"><span class="accord-label">Oriental</span><div class="accord-track"><div class="accord-fill" id="acc-oriental"></div></div></div>
+        <div class="accord-row"><span class="accord-label">Frais</span><div class="accord-track"><div class="accord-fill" id="acc-frais"></div></div></div>
+        <div class="accord-row"><span class="accord-label">Gourmand</span><div class="accord-track"><div class="accord-fill" id="acc-gourmand"></div></div></div>
+      </div>
+
+      <div class="summary-price">
+        <span class="price-label">Prix estimé</span>
+        <span class="price-val" id="price-val">— FCFA</span>
+      </div>
+
+      <button class="btn-command" id="btn-command" onclick="submitOrder()" disabled>Commander</button>
+      <button class="btn-reset" onclick="resetAll()">↺ Recommencer</button>
+    </div>
+  </div>
+
+</div><!-- end workshop -->
+
+<!-- SUCCESS MODAL -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-modal">
+    <span class="success-icon">✦</span>
+    <div class="success-eyebrow">Création confirmée</div>
+    <h2 class="success-title">Votre parfum<br><em id="success-name">est en préparation</em></h2>
+    <div class="success-hr"></div>
+    <p class="success-sub">Votre fragrance signature a été enregistrée. Notre atelier la préparera avec soin selon vos proportions exactes. Vous recevrez une confirmation sous 24h.</p>
+    <div class="success-btns">
+      <a href="catalogue.html" class="btn-gold">Voir le catalogue</a>
+      <button class="btn-outline" onclick="resetAll();document.getElementById('success-overlay').classList.remove('open')">Créer un autre</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">✦ Luxury Scent</div>
+  <div class="footer-text">© 2024 Luxury Scent · Essence of Elegance</div>
+  <div class="footer-text">Fait avec passion au Cameroun 🇨🇲</div>
+</footer>
+
+<script>
+const INGREDIENTS = [
+  {id:'rose',    name:'Rose de Grasse',     origin:'Grasse, France',    icon:'🌹', desc:'Rose, géranium, nuances poudrées',    family:'Florale',   accord:{floral:90,boise:0,oriental:20,frais:10,gourmand:0},  price:3500},
+  {id:'jasmin',  name:'Jasmin Sambac',      origin:'Inde du Sud',       icon:'🌸', desc:'Jasmin, miel, notes indolées',        family:'Florale',   accord:{floral:85,boise:0,oriental:30,frais:5,gourmand:15},  price:3200},
+  {id:'oud',     name:'Oud Arabe',          origin:'Arabie Saoudite',   icon:'🪵', desc:'Oud précieux, résine, bois fumé',     family:'Orientale', accord:{floral:0,boise:70,oriental:95,frais:0,gourmand:0},   price:4500},
+  {id:'santal',  name:'Santal de Mysore',   origin:'Mysore, Inde',      icon:'🌿', desc:'Santal crémeux, doux, boisé',         family:'Boisée',    accord:{floral:10,boise:80,oriental:30,frais:5,gourmand:20}, price:3800},
+  {id:'vetiver', name:'Vétiver d\'Haïti',   origin:'Haïti',             icon:'🌾', desc:'Terre, bois fumé, herbacé',           family:'Boisée',    accord:{floral:0,boise:85,oriental:20,frais:15,gourmand:0},  price:3000},
+  {id:'patch',   name:'Patchouli de Sumatra',origin:'Sumatra',          icon:'🍂', desc:'Patchouli sombre, mousse, terreux',   family:'Boisée',    accord:{floral:0,boise:75,oriental:60,frais:0,gourmand:0},   price:2800},
+  {id:'bergam',  name:'Bergamote de Calabre',origin:'Calabre, Italie',  icon:'🍋', desc:'Agrumes, floral léger, vivifiant',    family:'Hespéridée',accord:{floral:30,boise:0,oriental:0,frais:90,gourmand:0},  price:2500},
+  {id:'iris',    name:'Iris de Florence',   origin:'Florence, Italie',  icon:'💜', desc:'Iris, violette, poudré délicat',      family:'Florale',   accord:{floral:75,boise:10,oriental:10,frais:20,gourmand:30},price:4200},
+  {id:'ambre',   name:'Ambre Gris',         origin:'Océan Indien',      icon:'✨', desc:'Ambre chaud, musc, chaleureux',       family:'Orientale', accord:{floral:10,boise:20,oriental:85,frais:0,gourmand:40}, price:4000},
+  {id:'musc',    name:'Musc Blanc',         origin:'Synthèse noble',    icon:'🕊️', desc:'Musc propre, peau douce, délicat',    family:'Musquée',   accord:{floral:20,boise:10,oriental:15,frais:40,gourmand:10},price:2200},
+  {id:'ylang',   name:'Ylang-Ylang',        origin:'Comores',           icon:'🌺', desc:'Fleur tropicale, crémeux, banane',    family:'Florale',   accord:{floral:80,boise:0,oriental:50,frais:10,gourmand:20}, price:3100},
+  {id:'cedre',   name:'Cèdre de Virginie',  origin:'Virginie, USA',     icon:'🌲', desc:'Bois sec, crayon, propre et frais',   family:'Boisée',    accord:{floral:0,boise:80,oriental:10,frais:30,gourmand:0},  price:2600},
+  {id:'tonka',   name:'Fève Tonka',         origin:'Brésil',            icon:'🫘', desc:'Vanille, coumarine, amande chaude',   family:'Gourmande', accord:{floral:10,boise:15,oriental:60,frais:0,gourmand:85}, price:2900},
+  {id:'poivre',  name:'Poivre Noir',        origin:'Madagascar',        icon:'⚫', desc:'Poivre vif, épices piquantes, cuir',  family:'Épicée',    accord:{floral:0,boise:30,oriental:70,frais:20,gourmand:10}, price:2700},
+  {id:'vanille', name:'Vanille Bourbon',    origin:'Île Bourbon',       icon:'🍯', desc:'Vanille pure, baume, douceur sucrée', family:'Gourmande', accord:{floral:5,boise:10,oriental:65,frais:0,gourmand:90},  price:3300}
+];
+
+const PRICES = {'10 ml':8000,'30 ml':14000,'50 ml':20000,'100 ml':35000};
+const NAMES_SUGGESTIONS = ['Éclat d\'Orient','Brise de Jade','Nuit Dorée','Âme Secrète','Soleil Ambré','Lumière d\'Ébène','Velours Noir','Fleur de Soie'];
+
+let selected = [];
+let currentStep = 1;
+let proportions = {};
+let selectedVolume = '30 ml';
+let perfumeName = '';
+
+function buildIngredients(filter='tous') {
+  const grid = document.getElementById('ing-grid');
+  grid.innerHTML = '';
+  INGREDIENTS.forEach(ing => {
+    const show = filter === 'tous' || ing.family.includes(filter);
+    if (!show) return;
+    const isSelected = selected.includes(ing.id);
+    const isDisabled = !isSelected && selected.length >= 4;
+    const card = document.createElement('div');
+    card.className = 'ing-card' + (isSelected ? ' selected' : '') + (isDisabled ? ' disabled' : '');
+    card.dataset.id = ing.id;
+    card.innerHTML = `
+      <div class="ing-header">
+        <span class="ing-icon">${ing.icon}</span>
+        <span class="ing-check">✓</span>
+      </div>
+      <div class="ing-name">${ing.name}</div>
+      <span class="ing-origin">${ing.origin}</span>
+      <p class="ing-desc">${ing.desc}</p>
+      <span class="ing-family">${ing.family}</span>`;
+    card.addEventListener('click', () => toggleIngredient(ing.id));
+    grid.appendChild(card);
+  });
+}
+
+function toggleIngredient(id) {
+  if (selected.includes(id)) {
+    selected = selected.filter(i => i !== i === id ? true : i !== id);
+    selected = selected.filter(i => i !== id);
+  } else {
+    if (selected.length >= 4) return;
+    selected.push(id);
+    if (!proportions[id]) proportions[id] = Math.round(100 / (selected.length));
+  }
+  redistributeProportions();
+  buildIngredients(document.querySelector('.cat-tab.active').dataset.cat);
+  updateSummary();
+  document.getElementById('btn-to-2').disabled = selected.length < 2;
+}
+
+function redistributeProportions() {
+  if (selected.length === 0) return;
+  const equal = Math.floor(100 / selected.length);
+  const rem = 100 - equal * selected.length;
+  selected.forEach((id, i) => { proportions[id] = equal + (i === 0 ? rem : 0); });
+}
+
+function updateSummary() {
+  // Ingredients list
+  const cont = document.getElementById('summary-ingredients');
+  if (selected.length === 0) { cont.innerHTML = '<p class="sum-empty">Aucun ingrédient sélectionné</p>'; }
+  else {
+    cont.innerHTML = selected.map(id => {
+      const ing = INGREDIENTS.find(i => i.id === id);
+      return `<div class="sum-ing"><span class="sum-ing-name">${ing.icon} ${ing.name}</span><span class="sum-ing-pct">${proportions[id] || 0}%</span></div>`;
+    }).join('');
+  }
+  // Accord
+  const accords = {floral:0,boise:0,oriental:0,frais:0,gourmand:0};
+  selected.forEach(id => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    const pct = (proportions[id] || 0) / 100;
+    Object.keys(accords).forEach(k => accords[k] += ing.accord[k] * pct);
+  });
+  const maxVal = Math.max(...Object.values(accords), 1);
+  Object.keys(accords).forEach(k => {
+    const el = document.getElementById('acc-' + k);
+    if (el) el.style.width = Math.min(100, (accords[k] / maxVal) * 100) + '%';
+  });
+  // Flacon emoji
+  if (selected.length > 0) {
+    const main = INGREDIENTS.find(i => i.id === selected[0]);
+    document.getElementById('flacon-emoji').textContent = main.icon;
+  } else { document.getElementById('flacon-emoji').textContent = '✦'; }
+  // Price
+  const basePrice = selected.reduce((sum, id) => { const ing = INGREDIENTS.find(i=>i.id===id); return sum + ing.price; }, 0);
+  const vol = PRICES[selectedVolume] || 14000;
+  const total = basePrice + vol;
+  document.getElementById('price-val').textContent = total.toLocaleString('fr-FR') + ' FCFA';
+  document.getElementById('btn-command').disabled = selected.length < 2;
+}
+
+function goToStep(n) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + n).classList.add('active');
+  // Update step indicators
+  for (let i = 1; i <= 3; i++) {
+    const sc = document.getElementById('sc-' + i);
+    const sl = document.getElementById('sl-' + i);
+    sc.classList.remove('active','done');
+    sl.classList.remove('active');
+    if (i < n) { sc.classList.add('done'); sc.textContent = '✓'; }
+    else if (i === n) { sc.classList.add('active'); sc.textContent = i; sl.classList.add('active'); }
+    else { sc.textContent = i; }
+    if (i < 3) {
+      const conn = document.getElementById('conn-' + i);
+      if (conn) conn.classList.toggle('done', i < n);
+    }
+  }
+  if (n === 2) buildProportions();
+  if (n === 3) buildNameSuggestions();
+  currentStep = n;
+  window.scrollTo({top: document.querySelector('.steps-bar').offsetTop - 100, behavior:'smooth'});
+}
+
+function buildProportions() {
+  const list = document.getElementById('proportion-list');
+  list.innerHTML = '';
+  selected.forEach(id => {
+    const ing = INGREDIENTS.find(i => i.id === id);
+    const pct = proportions[id] || 0;
+    const item = document.createElement('div');
+    item.className = 'prop-item';
+    item.innerHTML = `
+      <div class="prop-header">
+        <span class="prop-name">${ing.icon} ${ing.name}</span>
+        <span class="prop-pct" id="pct-${id}">${pct}%</span>
+      </div>
+      <input type="range" class="prop-slider" min="5" max="80" value="${pct}" data-id="${id}" oninput="updateProportion('${id}', parseInt(this.value))">
+      <p class="prop-note">${ing.desc}</p>`;
+    list.appendChild(item);
+  });
+  updateTotalDisplay();
+}
+
+function updateProportion(id, val) {
+  proportions[id] = val;
+  document.getElementById('pct-' + id).textContent = val + '%';
+  updateTotalDisplay();
+  updateSummary();
+}
+
+function updateTotalDisplay() {
+  const total = selected.reduce((s, id) => s + (proportions[id] || 0), 0);
+  const el = document.getElementById('total-display');
+  el.textContent = total + ' %';
+  el.className = total > 110 ? 'total-warn' : 'total-val';
+}
+
+function buildNameSuggestions() {
+  const cont = document.getElementById('name-suggestions');
+  cont.innerHTML = NAMES_SUGGESTIONS.map(n =>
+    `<span class="suggestion" onclick="useSuggestion('${n}')">${n}</span>`).join('');
+}
+
+function useSuggestion(name) {
+  document.getElementById('perfume-name').value = name;
+  updateName(name);
+}
+
+function updateName(val) {
+  perfumeName = val || 'Sans titre';
+  document.getElementById('flacon-name').textContent = perfumeName;
+  document.getElementById('success-name').textContent = '"' + perfumeName + '"';
+}
+
+function selectVol(btn, vol) {
+  document.querySelectorAll('.vol-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedVolume = vol;
+  updateSummary();
+}
+
+function submitOrder() {
+  const name = document.getElementById('perfume-name').value || 'Ma Création';
+  document.getElementById('success-name').textContent = '"' + name + '"';
+  document.getElementById('success-overlay').classList.add('open');
+}
+
+function resetAll() {
+  selected = []; proportions = {}; perfumeName = ''; selectedVolume = '30 ml';
+  document.getElementById('perfume-name').value = '';
+  document.getElementById('flacon-name').textContent = 'Sans titre';
+  document.getElementById('flacon-emoji').textContent = '✦';
+  document.querySelectorAll('.vol-btn').forEach((b,i) => b.classList.toggle('active', i===1));
+  goToStep(1);
+  buildIngredients('tous');
+  updateSummary();
+  document.getElementById('btn-to-2').disabled = true;
+}
+
+// Category filter
+document.getElementById('cat-tabs').addEventListener('click', e => {
+  if (!e.target.classList.contains('cat-tab')) return;
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  buildIngredients(e.target.dataset.cat);
+});
+
+// Reveal on scroll
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, {threshold:0.08});
+reveals.forEach(el => observer.observe(el));
+
+// Init
+buildIngredients('tous');
+updateSummary();
+</script>
+</body>
+</html>
