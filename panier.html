@@ -1,9 +1,791 @@
-... header ...
-<main class="panier-recap">
-    <h2>Mon panier</h2>
-    <div id="panier-items"></div>
-    <p><strong>Total : <span id="total-panier">0</span> €</strong></p>
-    <button id="valider-commande" class="btn-gold">Valider la commande (simulation)</button>
-</main>
-... footer ...
-<script src="script.js"></script>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panier — Luxury Scent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --gold:#C9A84C; --gold-light:#E8C97A; --gold-dim:rgba(201,168,76,0.30);
+      --gold-subtle:rgba(201,168,76,0.08); --black:#090909; --black-soft:#0E0E0E;
+      --black-card:#141414; --black-hover:#1C1C1C; --white:#FAF8F3;
+      --white-muted:rgba(250,248,243,0.55); --white-dim:rgba(250,248,243,0.22);
+      --orange:#FF6B00; --mtn:#FFC700;
+    }
+    html { scroll-behavior:smooth; }
+    body { background:var(--black); color:var(--white); font-family:'Cormorant Garamond',Georgia,serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; min-height:100vh; }
+    a { text-decoration:none; color:inherit; }
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-track { background:var(--black); }
+    ::-webkit-scrollbar-thumb { background:var(--gold-dim); border-radius:2px; }
+
+    /* NAV */
+    nav { position:fixed; top:0; left:0; right:0; z-index:999; display:flex; align-items:center; justify-content:space-between; padding:1.4rem 5rem; background:rgba(9,9,9,0.96); border-bottom:0.5px solid rgba(201,168,76,0.18); backdrop-filter:blur(12px); }
+    .nav-logo { font-family:'Cinzel',serif; font-size:1rem; font-weight:600; letter-spacing:0.3em; color:var(--gold); }
+    .nav-links { display:flex; gap:3rem; list-style:none; }
+    .nav-links a { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.22em; color:var(--white-muted); text-transform:uppercase; transition:color 0.3s; position:relative; }
+    .nav-links a::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:0.5px; background:var(--gold); transition:width 0.3s; }
+    .nav-links a:hover { color:var(--gold); }
+    .nav-links a:hover::after { width:100%; }
+    .nav-cta { font-family:'Cinzel',serif; font-size:0.68rem; letter-spacing:0.2em; color:var(--gold); border:0.5px solid var(--gold); padding:0.55rem 1.4rem; text-transform:uppercase; transition:all 0.3s; }
+    .nav-cta:hover { background:var(--gold); color:var(--black); }
+
+    /* PAGE HEADER */
+    .page-header { padding:9rem 5rem 4rem; position:relative; overflow:hidden; }
+    .page-header::before { content:''; position:absolute; top:-10%; left:50%; transform:translateX(-50%); width:600px; height:600px; background:radial-gradient(circle,rgba(201,168,76,0.05) 0%,transparent 65%); pointer-events:none; }
+    .page-header::after { content:''; position:absolute; inset:0; background-image:radial-gradient(circle,rgba(201,168,76,0.04) 1px,transparent 1px); background-size:42px 42px; pointer-events:none; opacity:0.5; }
+    .page-header-inner { position:relative; z-index:1; }
+    .page-eyebrow { display:inline-flex; align-items:center; gap:1rem; font-family:'Cinzel',serif; font-size:0.62rem; letter-spacing:0.45em; color:var(--gold); border:0.5px solid var(--gold-dim); padding:0.5rem 2rem; margin-bottom:1.5rem; text-transform:uppercase; }
+    .page-eyebrow span { opacity:0.45; font-size:0.5rem; }
+    .page-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.4rem,5vw,4rem); font-weight:300; line-height:1.1; color:var(--white); }
+    .page-title em { font-style:italic; color:var(--gold); }
+    .breadcrumb { display:flex; align-items:center; gap:0.6rem; margin-top:1rem; }
+    .breadcrumb a, .breadcrumb span { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; }
+    .breadcrumb a { color:var(--white-muted); transition:color 0.3s; }
+    .breadcrumb a:hover { color:var(--gold); }
+    .breadcrumb span { color:rgba(201,168,76,0.4); }
+    .breadcrumb .current { color:var(--gold); }
+
+    /* CHECKOUT STEPS */
+    .checkout-steps { display:flex; align-items:center; justify-content:center; gap:0; padding:2rem 5rem; border-bottom:0.5px solid rgba(201,168,76,0.1); }
+    .ck-step { display:flex; align-items:center; gap:0.8rem; }
+    .ck-circle { width:32px; height:32px; border-radius:50%; border:0.5px solid rgba(201,168,76,0.25); display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:0.6rem; color:var(--white-muted); transition:all 0.4s; flex-shrink:0; }
+    .ck-circle.active { background:var(--gold); border-color:var(--gold); color:var(--black); }
+    .ck-circle.done { background:rgba(201,168,76,0.12); border-color:var(--gold); color:var(--gold); }
+    .ck-label { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--white-muted); transition:color 0.4s; white-space:nowrap; }
+    .ck-label.active { color:var(--gold); }
+    .ck-connector { width:50px; height:0.5px; background:rgba(201,168,76,0.15); margin:0 0.8rem; flex-shrink:0; transition:background 0.4s; }
+    .ck-connector.done { background:var(--gold); }
+
+    /* MAIN LAYOUT */
+    .panier-layout { display:grid; grid-template-columns:1fr 420px; gap:2rem; padding:3rem 5rem 8rem; align-items:start; }
+
+    /* ===== LEFT ===== */
+    .cart-header { display:flex; justify-content:space-between; align-items:center; padding-bottom:1.5rem; border-bottom:0.5px solid rgba(201,168,76,0.15); margin-bottom:0; }
+    .cart-header-title { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.35em; color:rgba(201,168,76,0.5); text-transform:uppercase; }
+    .cart-count-badge { font-family:'Cinzel',serif; font-size:0.62rem; letter-spacing:0.2em; color:var(--gold); border:0.5px solid var(--gold-dim); padding:0.3rem 0.8rem; text-transform:uppercase; }
+
+    /* Cart item */
+    .cart-item { display:flex; gap:1.8rem; padding:2rem 0; border-bottom:0.5px solid rgba(201,168,76,0.08); align-items:flex-start; animation:itemIn 0.4s cubic-bezier(.16,1,.3,1) both; }
+    @keyframes itemIn { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+    .item-visual { width:90px; height:90px; background:linear-gradient(145deg,#130F08,#1F1808,#130F08); display:flex; align-items:center; justify-content:center; flex-shrink:0; position:relative; overflow:hidden; }
+    .item-visual::before { content:''; position:absolute; inset:0; background:radial-gradient(circle,rgba(201,168,76,0.1),transparent 65%); }
+    .item-emoji { font-size:2.5rem; position:relative; z-index:1; }
+    .item-body { flex:1; }
+    .item-family { font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:0.3em; color:var(--gold); text-transform:uppercase; display:block; margin-bottom:0.3rem; }
+    .item-name { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:400; color:var(--white); margin-bottom:0.2rem; }
+    .item-notes { font-size:0.85rem; font-weight:300; font-style:italic; color:var(--white-muted); margin-bottom:0.8rem; }
+    .item-controls { display:flex; align-items:center; gap:1.5rem; }
+    .qty-control { display:flex; align-items:center; border:0.5px solid rgba(201,168,76,0.2); }
+    .qty-btn { width:30px; height:30px; background:transparent; border:none; color:var(--gold); font-size:0.9rem; cursor:pointer; transition:background 0.2s; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; }
+    .qty-btn:hover { background:rgba(201,168,76,0.1); }
+    .qty-val { width:36px; text-align:center; font-family:'Cinzel',serif; font-size:0.72rem; color:var(--white); border-left:0.5px solid rgba(201,168,76,0.2); border-right:0.5px solid rgba(201,168,76,0.2); line-height:30px; }
+    .item-delete { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.18em; text-transform:uppercase; color:rgba(250,248,243,0.3); background:transparent; border:none; cursor:pointer; transition:color 0.3s; }
+    .item-delete:hover { color:#e07070; }
+    .item-price-col { text-align:right; flex-shrink:0; }
+    .item-price { font-family:'Cinzel',serif; font-size:0.9rem; letter-spacing:0.08em; color:var(--gold); }
+    .item-unit-price { font-size:0.75rem; font-style:italic; color:var(--white-dim); display:block; margin-top:0.2rem; }
+
+    /* Empty */
+    .empty-cart { text-align:center; padding:6rem 2rem; display:none; }
+    .empty-cart.show { display:block; }
+    .empty-icon { font-size:4rem; margin-bottom:2rem; opacity:0.3; display:block; }
+    .empty-title { font-family:'Cinzel',serif; font-size:0.85rem; letter-spacing:0.25em; color:var(--gold); text-transform:uppercase; margin-bottom:0.75rem; }
+    .empty-text { font-size:1rem; font-style:italic; color:var(--white-muted); margin-bottom:2.5rem; }
+
+    /* Promo */
+    .promo-row { display:flex; gap:0; margin-top:2rem; }
+    .promo-input { flex:1; background:var(--black-card); border:0.5px solid rgba(201,168,76,0.15); border-right:none; color:var(--white); font-family:'Cormorant Garamond',serif; font-size:1rem; font-style:italic; padding:0.85rem 1.2rem; outline:none; transition:border-color 0.3s; }
+    .promo-input:focus { border-color:var(--gold); }
+    .promo-input::placeholder { color:var(--white-dim); }
+    .promo-btn { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--black); background:var(--gold); border:none; padding:0 1.5rem; cursor:pointer; transition:background 0.3s; white-space:nowrap; }
+    .promo-btn:hover { background:var(--gold-light); }
+    .promo-msg { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.18em; text-transform:uppercase; margin-top:0.6rem; display:none; }
+    .promo-msg.valid { color:#5aad45; display:block; }
+    .promo-msg.invalid { color:#e07070; display:block; }
+
+    /* Suggested */
+    .suggested-section { margin-top:3rem; }
+    .suggested-label { font-family:'Cinzel',serif; font-size:0.62rem; letter-spacing:0.35em; color:rgba(201,168,76,0.45); text-transform:uppercase; margin-bottom:1.5rem; display:block; }
+    .suggested-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .sug-card { background:var(--black-card); border:0.5px solid rgba(201,168,76,0.08); padding:1.2rem; cursor:pointer; transition:all 0.3s; }
+    .sug-card:hover { border-color:rgba(201,168,76,0.35); background:var(--black-hover); transform:translateY(-3px); }
+    .sug-emoji { font-size:2rem; display:block; margin-bottom:0.6rem; }
+    .sug-name { font-family:'Cormorant Garamond',serif; font-size:1rem; color:var(--white); margin-bottom:0.2rem; }
+    .sug-price { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.1em; color:var(--gold); }
+    .sug-add { display:block; font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--white-muted); margin-top:0.5rem; transition:color 0.3s; }
+    .sug-card:hover .sug-add { color:var(--gold); }
+
+    /* ===== RIGHT PANEL ===== */
+    .order-panel { position:sticky; top:8rem; display:flex; flex-direction:column; gap:1.5rem; }
+
+    .panel-box { background:var(--black-card); border:0.5px solid rgba(201,168,76,0.18); padding:2rem; }
+    .panel-box-title { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.35em; color:var(--gold); text-transform:uppercase; margin-bottom:1.8rem; display:flex; align-items:center; gap:0.8rem; }
+    .panel-box-title::after { content:''; flex:1; height:0.5px; background:linear-gradient(90deg,var(--gold-dim),transparent); }
+
+    /* Livraison */
+    .liv-opt { display:flex; align-items:center; gap:0.8rem; padding:0.9rem 1rem; border:0.5px solid rgba(201,168,76,0.1); margin-bottom:0.6rem; cursor:pointer; transition:all 0.25s; }
+    .liv-opt:hover, .liv-opt.active { border-color:rgba(201,168,76,0.4); background:rgba(201,168,76,0.05); }
+    .liv-radio { width:14px; height:14px; border:0.5px solid var(--gold-dim); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.25s; }
+    .liv-opt.active .liv-radio { border-color:var(--gold); background:var(--gold); }
+    .liv-opt.active .liv-radio::after { content:''; width:5px; height:5px; border-radius:50%; background:var(--black); display:block; }
+    .liv-info { flex:1; }
+    .liv-name { font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--white); margin-bottom:0.15rem; }
+    .liv-delay { font-size:0.82rem; font-style:italic; color:var(--white-muted); }
+    .liv-price-tag { font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:0.1em; color:var(--gold); }
+
+    /* Date de livraison */
+    .date-row { display:flex; align-items:center; gap:1rem; margin-top:1rem; padding:1rem 1.2rem; background:rgba(201,168,76,0.05); border:0.5px solid rgba(201,168,76,0.12); }
+    .date-icon { font-size:1.4rem; flex-shrink:0; }
+    .date-info {}
+    .date-label-s { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.25em; color:rgba(201,168,76,0.5); text-transform:uppercase; display:block; margin-bottom:0.2rem; }
+    .date-val { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-style:italic; color:var(--white); }
+
+    /* Contact */
+    .field-label { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.3em; color:rgba(201,168,76,0.55); text-transform:uppercase; display:block; margin-bottom:0.6rem; }
+    .field-group { margin-bottom:1.2rem; }
+    .text-input { width:100%; background:rgba(201,168,76,0.04); border:0.5px solid rgba(201,168,76,0.18); color:var(--white); font-family:'Cormorant Garamond',serif; font-size:1rem; font-style:italic; padding:0.85rem 1.2rem; outline:none; transition:border-color 0.3s; }
+    .text-input:focus { border-color:var(--gold); background:rgba(201,168,76,0.06); }
+    .text-input::placeholder { color:var(--white-dim); }
+    .phone-wrap { display:flex; }
+    .phone-prefix { background:rgba(201,168,76,0.08); border:0.5px solid rgba(201,168,76,0.18); border-right:none; color:var(--gold); font-family:'Cinzel',serif; font-size:0.78rem; padding:0 1rem; display:flex; align-items:center; letter-spacing:0.1em; flex-shrink:0; }
+    .input-hint { font-size:0.78rem; font-style:italic; color:var(--white-dim); margin-top:0.4rem; display:block; }
+
+    /* PAIEMENT */
+    .payment-opts { display:flex; flex-direction:column; gap:0.8rem; }
+    .pay-opt { display:flex; align-items:center; gap:1rem; padding:1rem 1.2rem; border:0.5px solid rgba(201,168,76,0.12); cursor:pointer; transition:all 0.3s; position:relative; overflow:hidden; }
+    .pay-opt::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent); opacity:0; transition:opacity 0.3s; }
+    .pay-opt:hover { border-color:rgba(201,168,76,0.35); }
+    .pay-opt:hover::before { opacity:1; }
+    .pay-opt.active { border-color:var(--gold); background:rgba(201,168,76,0.06); }
+
+    /* Orange Money */
+    .pay-opt.orange.active { border-color:var(--orange); background:rgba(255,107,0,0.06); }
+    .pay-opt.orange:hover { border-color:rgba(255,107,0,0.5); }
+    .pay-logo-orange { width:44px; height:44px; background:#FF6B00; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.1rem; font-weight:900; color:white; font-family:Arial,sans-serif; letter-spacing:-0.5px; }
+    /* MTN Money */
+    .pay-opt.mtn.active { border-color:var(--mtn); background:rgba(255,199,0,0.06); }
+    .pay-opt.mtn:hover { border-color:rgba(255,199,0,0.5); }
+    .pay-logo-mtn { width:44px; height:44px; background:#FFC700; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:0.55rem; font-weight:900; color:#1a1a1a; font-family:Arial,sans-serif; text-align:center; line-height:1.1; }
+    /* Cash */
+    .pay-logo-cash { width:44px; height:44px; background:rgba(201,168,76,0.15); border:0.5px solid var(--gold-dim); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.3rem; }
+
+    .pay-info { flex:1; }
+    .pay-name { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--white); margin-bottom:0.2rem; }
+    .pay-desc { font-size:0.82rem; font-style:italic; color:var(--white-muted); }
+    .pay-radio { width:14px; height:14px; border:0.5px solid var(--gold-dim); border-radius:50%; flex-shrink:0; transition:all 0.25s; display:flex; align-items:center; justify-content:center; }
+    .pay-opt.active .pay-radio { border-color:var(--gold); background:var(--gold); }
+    .pay-opt.orange.active .pay-radio { border-color:var(--orange); background:var(--orange); }
+    .pay-opt.mtn.active .pay-radio { border-color:var(--mtn); background:var(--mtn); }
+    .pay-opt.active .pay-radio::after, .pay-opt.orange.active .pay-radio::after, .pay-opt.mtn.active .pay-radio::after { content:''; width:5px; height:5px; border-radius:50%; background:var(--black); display:block; }
+
+    /* Payment instructions */
+    .pay-instructions { display:none; margin-top:1rem; padding:1.2rem; border:0.5px solid rgba(201,168,76,0.15); background:rgba(201,168,76,0.04); }
+    .pay-instructions.show { display:block; }
+    .pay-instructions-title { font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--gold); margin-bottom:0.8rem; display:block; }
+    .pay-step { display:flex; gap:0.8rem; align-items:flex-start; margin-bottom:0.6rem; }
+    .pay-step-num { font-family:'Cinzel',serif; font-size:0.6rem; color:var(--gold); flex-shrink:0; margin-top:0.1rem; }
+    .pay-step-text { font-size:0.88rem; font-style:italic; color:var(--white-muted); line-height:1.55; }
+    .pay-step-text strong { color:var(--white); font-style:normal; }
+    .pay-number { font-family:'Cinzel',serif; font-size:1.1rem; letter-spacing:0.15em; color:var(--gold); display:block; margin:0.8rem 0; text-align:center; padding:0.6rem; border:0.5px solid var(--gold-dim); }
+
+    /* ORDER SUMMARY TOTALS */
+    .os-lines { display:flex; flex-direction:column; gap:0.9rem; margin-bottom:1.2rem; }
+    .os-line { display:flex; justify-content:space-between; align-items:center; }
+    .os-line-label { font-size:0.95rem; font-style:italic; color:var(--white-muted); }
+    .os-line-val { font-family:'Cinzel',serif; font-size:0.78rem; letter-spacing:0.08em; color:var(--white); }
+    .os-line-val.green { color:#5aad45; }
+    .os-divider { height:0.5px; background:rgba(201,168,76,0.12); margin:1rem 0; }
+    .os-total-row { display:flex; justify-content:space-between; align-items:center; padding:0.8rem 0; }
+    .os-total-label { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--white); }
+    .os-total-val { font-family:'Cinzel',serif; font-size:1.2rem; letter-spacing:0.1em; color:var(--gold); }
+
+    /* CHECKOUT BTN */
+    .btn-checkout { width:100%; font-family:'Cinzel',serif; font-size:0.75rem; letter-spacing:0.28em; text-transform:uppercase; color:var(--black); background:var(--gold); border:none; padding:1.2rem; cursor:pointer; transition:all 0.3s; margin-bottom:0.8rem; display:flex; align-items:center; justify-content:center; gap:0.8rem; }
+    .btn-checkout:hover { background:var(--gold-light); transform:translateY(-2px); box-shadow:0 8px 30px rgba(201,168,76,0.25); }
+    .btn-checkout:disabled { opacity:0.3; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-checkout.orange-pay { background:var(--orange); color:white; }
+    .btn-checkout.orange-pay:hover { background:#ff8533; }
+    .btn-checkout.mtn-pay { background:var(--mtn); color:#1a1a1a; }
+    .btn-checkout.mtn-pay:hover { background:#ffd433; }
+
+    .btn-continue { width:100%; font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--white-muted); background:transparent; border:0.5px solid rgba(201,168,76,0.15); padding:0.85rem; cursor:pointer; transition:all 0.3s; text-decoration:none; display:block; text-align:center; }
+    .btn-continue:hover { color:var(--gold); border-color:var(--gold-dim); }
+
+    .security-badges { display:flex; justify-content:center; gap:1.5rem; margin-top:1.2rem; padding-top:1.2rem; border-top:0.5px solid rgba(201,168,76,0.1); flex-wrap:wrap; }
+    .sec-badge { font-family:'Cinzel',serif; font-size:0.52rem; letter-spacing:0.12em; text-transform:uppercase; color:rgba(250,248,243,0.25); display:flex; align-items:center; gap:0.4rem; }
+    .sec-icon { font-size:0.9rem; opacity:0.5; }
+
+    /* ERROR */
+    .field-error { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.15em; color:#e07070; text-transform:uppercase; margin-top:0.4rem; display:none; }
+    .field-error.show { display:block; }
+    .text-input.error { border-color:#e07070; }
+
+    /* SUCCESS OVERLAY */
+    .success-overlay { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.93); backdrop-filter:blur(14px); align-items:center; justify-content:center; padding:2rem; }
+    .success-overlay.open { display:flex; }
+    .success-modal { background:var(--black-card); border:0.5px solid rgba(201,168,76,0.3); max-width:600px; width:100%; padding:0; overflow:hidden; animation:modalIn 0.5s cubic-bezier(.16,1,.3,1) both; }
+    @keyframes modalIn { from{opacity:0;transform:scale(0.95) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+    .success-top { padding:3rem; text-align:center; background:linear-gradient(145deg,#130F08,#1F1808); position:relative; overflow:hidden; }
+    .success-top::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:300px; height:300px; background:radial-gradient(circle,rgba(201,168,76,0.1),transparent 70%); }
+    .success-checkmark { font-size:3.5rem; position:relative; z-index:1; display:block; margin-bottom:1rem; }
+    .success-top-title { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; color:var(--white); position:relative; z-index:1; }
+    .success-top-title em { font-style:italic; color:var(--gold); }
+    .success-body { padding:2.5rem; }
+    .success-order-block { background:rgba(201,168,76,0.06); border:0.5px solid rgba(201,168,76,0.18); padding:1.5rem; margin-bottom:1.8rem; }
+    .success-order-row { display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:0.5px solid rgba(201,168,76,0.08); }
+    .success-order-row:last-child { border-bottom:none; }
+    .success-order-key { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--white-muted); }
+    .success-order-val { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.1em; color:var(--gold); }
+    .success-sms-notice { background:rgba(201,168,76,0.04); border:0.5px solid rgba(201,168,76,0.12); padding:1.2rem; margin-bottom:1.8rem; display:flex; gap:1rem; align-items:flex-start; }
+    .sms-icon { font-size:1.5rem; flex-shrink:0; }
+    .sms-text { font-size:0.92rem; font-style:italic; color:var(--white-muted); line-height:1.6; }
+    .sms-text strong { color:var(--white); font-style:normal; }
+    .success-btns { display:flex; gap:1rem; flex-wrap:wrap; }
+    .btn-gold { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--black); background:var(--gold); border:none; padding:1rem 2rem; cursor:pointer; transition:all 0.3s; display:inline-block; text-decoration:none; flex:1; text-align:center; }
+    .btn-gold:hover { background:var(--gold-light); }
+    .btn-outline { font-family:'Cinzel',serif; font-size:0.72rem; letter-spacing:0.22em; text-transform:uppercase; color:var(--gold); background:transparent; border:0.5px solid var(--gold); padding:1rem 2rem; cursor:pointer; transition:all 0.3s; display:inline-block; text-decoration:none; flex:1; text-align:center; }
+    .btn-outline:hover { background:var(--gold-subtle); }
+
+    footer { background:var(--black); border-top:0.5px solid rgba(201,168,76,0.15); padding:2.5rem 5rem; display:flex; justify-content:space-between; align-items:center; }
+    .footer-logo { font-family:'Cinzel',serif; font-size:0.9rem; letter-spacing:0.3em; color:var(--gold); }
+    .footer-text { font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:0.22em; color:rgba(250,248,243,0.25); text-transform:uppercase; }
+
+    .reveal { opacity:0; transform:translateY(24px); transition:opacity 0.7s cubic-bezier(.16,1,.3,1),transform 0.7s cubic-bezier(.16,1,.3,1); }
+    .reveal.visible { opacity:1; transform:translateY(0); }
+
+    @media (max-width:1100px) { .panier-layout{grid-template-columns:1fr} .order-panel{position:static} nav{padding:1.2rem 2.5rem} .page-header,.panier-layout,.checkout-steps{padding-left:2.5rem;padding-right:2.5rem} }
+    @media (max-width:640px) { nav{padding:1rem 1.5rem} .nav-links{display:none} .page-header,.panier-layout{padding-left:1.5rem;padding-right:1.5rem} .checkout-steps{padding:1.5rem} .ck-connector{width:25px} .cart-item{flex-wrap:wrap} .suggested-grid{grid-template-columns:1fr 1fr} footer{flex-direction:column;gap:0.75rem;padding:2rem 1.5rem;text-align:center} }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">✦ Luxury Scent</div>
+  <ul class="nav-links">
+    <li><a href="index.html">Accueil</a></li>
+    <li><a href="catalogue.html">Catalogue</a></li>
+    <li><a href="quiz.html">Quiz Olfactif</a></li>
+    <li><a href="mixage.html">Mixage</a></li>
+  </ul>
+  <a href="panier.html" class="nav-cta">Panier (<span id="nav-count">2</span>)</a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow"><span>✦</span> Votre Sélection <span>✦</span></div>
+    <h1 class="page-title">Mon <em>panier</em></h1>
+    <div class="breadcrumb">
+      <a href="index.html">Accueil</a><span>›</span>
+      <a href="catalogue.html">Catalogue</a><span>›</span>
+      <span class="current">Panier</span>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT STEPS -->
+<div class="checkout-steps reveal">
+  <div class="ck-step">
+    <div class="ck-circle active" id="ck1">1</div>
+    <span class="ck-label active" id="cl1">Panier</span>
+  </div>
+  <div class="ck-connector" id="conn1"></div>
+  <div class="ck-step">
+    <div class="ck-circle" id="ck2">2</div>
+    <span class="ck-label" id="cl2">Livraison</span>
+  </div>
+  <div class="ck-connector" id="conn2"></div>
+  <div class="ck-step">
+    <div class="ck-circle" id="ck3">3</div>
+    <span class="ck-label" id="cl3">Paiement</span>
+  </div>
+  <div class="ck-connector" id="conn3"></div>
+  <div class="ck-step">
+    <div class="ck-circle" id="ck4">4</div>
+    <span class="ck-label" id="cl4">Confirmation</span>
+  </div>
+</div>
+
+<div class="panier-layout">
+
+  <!-- ===== LEFT ===== -->
+  <div>
+    <div class="cart-header reveal">
+      <span class="cart-header-title">Articles sélectionnés</span>
+      <span class="cart-count-badge" id="cart-count-badge">2 articles</span>
+    </div>
+
+    <div id="cart-items-container"></div>
+
+    <div class="empty-cart" id="empty-cart">
+      <span class="empty-icon">◈</span>
+      <div class="empty-title">Votre panier est vide</div>
+      <p class="empty-text">Explorez notre collection ou laissez-vous guider par le quiz olfactif.</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-top:1rem">
+        <a href="catalogue.html" class="btn-gold">Voir le catalogue</a>
+        <a href="quiz.html" class="btn-outline">Quiz olfactif</a>
+      </div>
+    </div>
+
+    <!-- Promo -->
+    <div id="promo-section" style="margin-top:2rem">
+      <div class="promo-row">
+        <input type="text" class="promo-input" id="promo-input" placeholder="Code promotionnel (ex: LUXURY10)…" />
+        <button class="promo-btn" onclick="applyPromo()">Appliquer</button>
+      </div>
+      <p class="promo-msg" id="promo-msg"></p>
+    </div>
+
+    <!-- Suggested -->
+    <div class="suggested-section reveal">
+      <span class="suggested-label">Vous pourriez aussi aimer</span>
+      <div class="suggested-grid">
+        <div class="sug-card" onclick="addSuggested(this,'Rose Impériale','🌹','Floral · Oriental','Rose · Oud · Ambre',12500)">
+          <span class="sug-emoji">🌹</span>
+          <div class="sug-name">Rose Impériale</div>
+          <span class="sug-price">12 500 FCFA</span>
+          <span class="sug-add">+ Ajouter</span>
+        </div>
+        <div class="sug-card" onclick="addSuggested(this,'Or du Désert','✨','Oriental · Épicé','Vanille · Épices · Patchouli',13000)">
+          <span class="sug-emoji">✨</span>
+          <div class="sug-name">Or du Désert</div>
+          <span class="sug-price">13 000 FCFA</span>
+          <span class="sug-add">+ Ajouter</span>
+        </div>
+        <div class="sug-card" onclick="addSuggested(this,'Nuit d\'Ambre','🌙','Oriental · Doux','Ambre · Vanille · Benjoin',11500)">
+          <span class="sug-emoji">🌙</span>
+          <div class="sug-name">Nuit d'Ambre</div>
+          <span class="sug-price">11 500 FCFA</span>
+          <span class="sug-add">+ Ajouter</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RIGHT PANEL ===== -->
+  <div class="order-panel">
+
+    <!-- 1. LIVRAISON & DATE -->
+    <div class="panel-box reveal">
+      <div class="panel-box-title">Livraison</div>
+
+      <div class="liv-opt active" onclick="selectLiv(this,0,'retrait')" data-price="0" data-type="retrait">
+        <div class="liv-radio"></div>
+        <div class="liv-info">
+          <div class="liv-name">Retrait en boutique</div>
+          <div class="liv-delay">Yaoundé · Disponible sous 48h</div>
+        </div>
+        <span class="liv-price-tag">Gratuit</span>
+      </div>
+      <div class="liv-opt" onclick="selectLiv(this,2500,'standard')" data-price="2500" data-type="standard">
+        <div class="liv-radio"></div>
+        <div class="liv-info">
+          <div class="liv-name">Livraison standard</div>
+          <div class="liv-delay">3–5 jours ouvrés · Cameroun</div>
+        </div>
+        <span class="liv-price-tag">2 500 FCFA</span>
+      </div>
+      <div class="liv-opt" onclick="selectLiv(this,5000,'express')" data-price="5000" data-type="express">
+        <div class="liv-radio"></div>
+        <div class="liv-info">
+          <div class="liv-name">Livraison express</div>
+          <div class="liv-delay">24h · Emballage cadeau inclus 🎁</div>
+        </div>
+        <span class="liv-price-tag">5 000 FCFA</span>
+      </div>
+
+      <!-- Date estimée -->
+      <div class="date-row" id="date-row">
+        <span class="date-icon">📅</span>
+        <div class="date-info">
+          <span class="date-label-s">Date de livraison estimée</span>
+          <span class="date-val" id="date-val">À définir</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. COORDONNÉES CLIENT -->
+    <div class="panel-box reveal">
+      <div class="panel-box-title">Vos coordonnées</div>
+
+      <div class="field-group">
+        <label class="field-label">Nom complet</label>
+        <input type="text" class="text-input" id="client-nom" placeholder="Votre nom et prénom" />
+        <span class="field-error" id="err-nom">Veuillez entrer votre nom</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">📱 Numéro de téléphone <span style="color:var(--gold)">*</span></label>
+        <div class="phone-wrap">
+          <span class="phone-prefix">🇨🇲 +237</span>
+          <input type="tel" class="text-input" id="client-phone" placeholder="6XX XXX XXX" maxlength="9" oninput="this.value=this.value.replace(/[^0-9]/g,'')" style="border-radius:0" />
+        </div>
+        <span class="input-hint">Le SMS de confirmation sera envoyé à ce numéro</span>
+        <span class="field-error" id="err-phone">Numéro invalide (9 chiffres requis)</span>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Adresse de livraison</label>
+        <input type="text" class="text-input" id="client-adresse" placeholder="Quartier, ville…" />
+      </div>
+    </div>
+
+    <!-- 3. PAIEMENT -->
+    <div class="panel-box reveal">
+      <div class="panel-box-title">Moyen de paiement</div>
+
+      <div class="payment-opts">
+
+        <!-- Orange Money -->
+        <div class="pay-opt orange" onclick="selectPay(this,'orange')" id="pay-orange">
+          <div class="pay-logo-orange">OM</div>
+          <div class="pay-info">
+            <div class="pay-name">Orange Money</div>
+            <div class="pay-desc">Paiement mobile sécurisé Orange</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+
+        <!-- MTN MoMo -->
+        <div class="pay-opt mtn" onclick="selectPay(this,'mtn')" id="pay-mtn">
+          <div class="pay-logo-mtn">MTN<br>MoMo</div>
+          <div class="pay-info">
+            <div class="pay-name">MTN Mobile Money</div>
+            <div class="pay-desc">Paiement mobile sécurisé MTN</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+
+        <!-- Cash -->
+        <div class="pay-opt" onclick="selectPay(this,'cash')" id="pay-cash">
+          <div class="pay-logo-cash">💵</div>
+          <div class="pay-info">
+            <div class="pay-name">Paiement à la livraison</div>
+            <div class="pay-desc">Espèces à la réception</div>
+          </div>
+          <div class="pay-radio"></div>
+        </div>
+
+      </div>
+
+      <!-- Instructions Orange Money -->
+      <div class="pay-instructions" id="inst-orange">
+        <span class="pay-instructions-title">Instructions Orange Money</span>
+        <div class="pay-step"><span class="pay-step-num">1.</span><p class="pay-step-text">Composez <strong>#150#</strong> sur votre téléphone Orange</p></div>
+        <div class="pay-step"><span class="pay-step-num">2.</span><p class="pay-step-text">Sélectionnez <strong>"Payer un marchand"</strong></p></div>
+        <div class="pay-step"><span class="pay-step-num">3.</span><p class="pay-step-text">Envoyez le montant au numéro marchand :</p></div>
+        <span class="pay-number">📱 699 000 001</span>
+        <div class="pay-step"><span class="pay-step-num">4.</span><p class="pay-step-text">Cliquez <strong>"Valider la commande"</strong> — vous recevrez un SMS de confirmation</p></div>
+      </div>
+
+      <!-- Instructions MTN MoMo -->
+      <div class="pay-instructions" id="inst-mtn">
+        <span class="pay-instructions-title">Instructions MTN MoMo</span>
+        <div class="pay-step"><span class="pay-step-num">1.</span><p class="pay-step-text">Composez <strong>*126#</strong> sur votre téléphone MTN</p></div>
+        <div class="pay-step"><span class="pay-step-num">2.</span><p class="pay-step-text">Sélectionnez <strong>"Transfert d'argent"</strong></p></div>
+        <div class="pay-step"><span class="pay-step-num">3.</span><p class="pay-step-text">Envoyez le montant au numéro :</p></div>
+        <span class="pay-number">📱 677 000 001</span>
+        <div class="pay-step"><span class="pay-step-num">4.</span><p class="pay-step-text">Entrez votre <strong>code PIN MoMo</strong>, puis cliquez "Valider"</p></div>
+      </div>
+
+      <!-- Instructions Cash -->
+      <div class="pay-instructions" id="inst-cash">
+        <span class="pay-instructions-title">Paiement à la livraison</span>
+        <div class="pay-step"><span class="pay-step-num">✦</span><p class="pay-step-text">Préparez le montant exact en espèces lors de la réception de votre commande.</p></div>
+        <div class="pay-step"><span class="pay-step-num">✦</span><p class="pay-step-text">Notre livreur vous contactera au numéro indiqué avant d'arriver.</p></div>
+      </div>
+
+    </div>
+
+    <!-- 4. RÉCAPITULATIF & TOTAL -->
+    <div class="panel-box reveal">
+      <div class="panel-box-title">Récapitulatif</div>
+
+      <div class="os-lines">
+        <div class="os-line">
+          <span class="os-line-label">Sous-total</span>
+          <span class="os-line-val" id="subtotal-val">23 000 FCFA</span>
+        </div>
+        <div class="os-line" id="promo-line" style="display:none">
+          <span class="os-line-label">Réduction promo</span>
+          <span class="os-line-val green" id="promo-reduction">—</span>
+        </div>
+        <div class="os-line">
+          <span class="os-line-label">Livraison</span>
+          <span class="os-line-val" id="livraison-val">Gratuit</span>
+        </div>
+      </div>
+      <div class="os-divider"></div>
+      <div class="os-total-row">
+        <span class="os-total-label">Total à payer</span>
+        <span class="os-total-val" id="total-val">23 000 FCFA</span>
+      </div>
+      <div class="os-divider"></div>
+
+      <button class="btn-checkout" id="btn-checkout" onclick="checkout()">
+        <span id="btn-checkout-text">Valider la commande</span>
+        <span>✦</span>
+      </button>
+      <a href="catalogue.html" class="btn-continue">← Continuer mes achats</a>
+
+      <div class="security-badges">
+        <span class="sec-badge"><span class="sec-icon">🔒</span>Sécurisé</span>
+        <span class="sec-badge"><span class="sec-icon">✦</span>Qualité garantie</span>
+        <span class="sec-badge"><span class="sec-icon">📦</span>Emballage soigné</span>
+      </div>
+    </div>
+
+  </div><!-- end order-panel -->
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-modal">
+    <div class="success-top">
+      <span class="success-checkmark">✦</span>
+      <h2 class="success-top-title">Commande <em>confirmée</em></h2>
+    </div>
+    <div class="success-body">
+      <div class="success-order-block">
+        <div class="success-order-row">
+          <span class="success-order-key">Numéro de commande</span>
+          <span class="success-order-val" id="s-order-num">LS-2024-0001</span>
+        </div>
+        <div class="success-order-row">
+          <span class="success-order-key">Moyen de paiement</span>
+          <span class="success-order-val" id="s-payment">—</span>
+        </div>
+        <div class="success-order-row">
+          <span class="success-order-key">Montant total</span>
+          <span class="success-order-val" id="s-total">—</span>
+        </div>
+        <div class="success-order-row">
+          <span class="success-order-key">Date de livraison estimée</span>
+          <span class="success-order-val" id="s-date">—</span>
+        </div>
+      </div>
+
+      <div class="success-sms-notice">
+        <span class="sms-icon">📱</span>
+        <p class="sms-text">Un SMS de confirmation a été envoyé au <strong id="s-phone">+237 —</strong>. Vous y trouverez le récapitulatif complet et le suivi de votre livraison.</p>
+      </div>
+
+      <div class="success-btns">
+        <a href="index.html" class="btn-gold">Retour à l'accueil</a>
+        <a href="catalogue.html" class="btn-outline">Continuer mes achats</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">✦ Luxury Scent</div>
+  <div class="footer-text">© 2024 Luxury Scent · Essence of Elegance</div>
+  <div class="footer-text">Fait avec passion au Cameroun 🇨🇲</div>
+</footer>
+
+<script>
+  let cart = [
+    {id:1, name:'Rose Impériale',  emoji:'🌹', family:'Floral · Oriental', notes:'Rose de Damas · Oud · Ambre', price:12500, qty:1},
+    {id:2, name:"Vague d'Ivoire", emoji:'🌊', family:'Aquatique · Frais',  notes:'Bergamote · Iris · Notes marines', price:10500, qty:1}
+  ];
+  let livraisonPrice = 0;
+  let livraisonType = 'retrait';
+  let selectedPayment = '';
+  let promoApplied = false;
+  let promoAmount = 0;
+  const PROMOS = {LUXURY10:10, SCENT20:20, SOUTENANCE:15};
+
+  // ---- RENDER ----
+  function renderCart() {
+    const container = document.getElementById('cart-items-container');
+    const empty = document.getElementById('empty-cart');
+    if (cart.length === 0) {
+      container.innerHTML = '';
+      empty.classList.add('show');
+      document.getElementById('btn-checkout').disabled = true;
+    } else {
+      empty.classList.remove('show');
+      document.getElementById('btn-checkout').disabled = false;
+      container.innerHTML = cart.map((item, i) => `
+        <div class="cart-item" style="animation-delay:${i*0.07}s">
+          <div class="item-visual"><span class="item-emoji">${item.emoji}</span></div>
+          <div class="item-body">
+            <span class="item-family">${item.family}</span>
+            <div class="item-name">${item.name}</div>
+            <div class="item-notes">${item.notes}</div>
+            <div class="item-controls">
+              <div class="qty-control">
+                <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
+                <span class="qty-val">${item.qty}</span>
+                <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+              </div>
+              <button class="item-delete" onclick="removeItem(${item.id})">✕ Retirer</button>
+            </div>
+          </div>
+          <div class="item-price-col">
+            <span class="item-price">${(item.price*item.qty).toLocaleString('fr-FR')} FCFA</span>
+            <span class="item-unit-price">${item.price.toLocaleString('fr-FR')} FCFA / unité</span>
+          </div>
+        </div>`).join('');
+    }
+    updateCount();
+    updateTotals();
+  }
+
+  function changeQty(id, d) {
+    const item = cart.find(i=>i.id===id);
+    if (item) { item.qty = Math.max(1, item.qty+d); renderCart(); }
+  }
+  function removeItem(id) {
+    cart = cart.filter(i=>i.id!==id);
+    renderCart();
+  }
+  function addSuggested(card, name, emoji, family, notes, price) {
+    const ex = cart.find(i=>i.name===name);
+    if (ex) { ex.qty++; } 
+    else { cart.push({id:Date.now(), name, emoji, family, notes, price, qty:1}); }
+    card.querySelector('.sug-add').textContent = '✓ Ajouté !';
+    setTimeout(()=>{ card.querySelector('.sug-add').textContent = '+ Ajouter'; }, 1800);
+    renderCart();
+  }
+  function updateCount() {
+    const n = cart.reduce((s,i)=>s+i.qty,0);
+    document.getElementById('cart-count-badge').textContent = n + (n>1?' articles':' article');
+    document.getElementById('nav-count').textContent = n;
+  }
+  function updateTotals() {
+    const sub = cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const red = promoApplied ? Math.round(sub*promoAmount/100) : 0;
+    const total = Math.max(0, sub - red + livraisonPrice);
+    document.getElementById('subtotal-val').textContent = sub.toLocaleString('fr-FR')+' FCFA';
+    document.getElementById('livraison-val').textContent = livraisonPrice===0 ? 'Gratuit' : livraisonPrice.toLocaleString('fr-FR')+' FCFA';
+    document.getElementById('total-val').textContent = total.toLocaleString('fr-FR')+' FCFA';
+    const pl = document.getElementById('promo-line');
+    if (promoApplied) { pl.style.display='flex'; document.getElementById('promo-reduction').textContent = '−'+red.toLocaleString('fr-FR')+' FCFA'; }
+    else { pl.style.display='none'; }
+  }
+
+  // ---- LIVRAISON ----
+  function selectLiv(el, price, type) {
+    document.querySelectorAll('.liv-opt').forEach(o=>o.classList.remove('active'));
+    el.classList.add('active');
+    livraisonPrice = price;
+    livraisonType = type;
+    updateTotals();
+    updateDeliveryDate(type);
+  }
+
+  function updateDeliveryDate(type) {
+    const now = new Date();
+    let days = 0;
+    if (type==='retrait') days = 2;
+    else if (type==='standard') days = 4;
+    else if (type==='express') days = 1;
+    const d = new Date(now);
+    // skip weekends
+    let added = 0;
+    while (added < days) {
+      d.setDate(d.getDate()+1);
+      if (d.getDay()!==0 && d.getDay()!==6) added++;
+    }
+    const jours = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];
+    const mois = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+    const label = type==='retrait' ? 'Disponible dès le' : 'Estimée le';
+    document.getElementById('date-val').textContent = label+' '+jours[d.getDay()]+' '+d.getDate()+' '+mois[d.getMonth()]+' '+d.getFullYear();
+  }
+
+  // ---- PAIEMENT ----
+  function selectPay(el, method) {
+    document.querySelectorAll('.pay-opt').forEach(o=>o.classList.remove('active'));
+    el.classList.add('active');
+    selectedPayment = method;
+    ['orange','mtn','cash'].forEach(m => {
+      const inst = document.getElementById('inst-'+m);
+      if (inst) inst.classList.toggle('show', m===method);
+    });
+    // Update checkout button
+    const btn = document.getElementById('btn-checkout');
+    const txt = document.getElementById('btn-checkout-text');
+    btn.className = 'btn-checkout';
+    if (method==='orange') { btn.classList.add('orange-pay'); txt.textContent = 'Payer via Orange Money'; }
+    else if (method==='mtn') { btn.classList.add('mtn-pay'); txt.textContent = 'Payer via MTN MoMo'; }
+    else { txt.textContent = 'Valider la commande'; }
+    // Steps update
+    ['ck1','ck2','ck3'].forEach((id,i)=>{ document.getElementById(id).classList.add('done'); document.getElementById(id).textContent='✓'; });
+    ['conn1','conn2'].forEach(id=>document.getElementById(id).classList.add('done'));
+  }
+
+  // ---- PROMO ----
+  function applyPromo() {
+    const code = document.getElementById('promo-input').value.trim().toUpperCase();
+    const msg = document.getElementById('promo-msg');
+    if (PROMOS[code]) {
+      promoApplied = true; promoAmount = PROMOS[code];
+      msg.className = 'promo-msg valid';
+      msg.textContent = '✓ Code appliqué — '+promoAmount+'% de réduction';
+      updateTotals();
+    } else {
+      msg.className = 'promo-msg invalid';
+      msg.textContent = '✕ Code invalide. Essayez LUXURY10 ou SCENT20';
+    }
+  }
+
+  // ---- VALIDATION ----
+  function validate() {
+    let ok = true;
+    const nom = document.getElementById('client-nom').value.trim();
+    const phone = document.getElementById('client-phone').value.trim();
+    document.getElementById('err-nom').classList.toggle('show', nom.length < 2);
+    document.getElementById('client-nom').classList.toggle('error', nom.length < 2);
+    if (nom.length < 2) ok = false;
+    document.getElementById('err-phone').classList.toggle('show', phone.length !== 9);
+    document.getElementById('client-phone').classList.toggle('error', phone.length !== 9);
+    if (phone.length !== 9) ok = false;
+    return ok;
+  }
+
+  // ---- CHECKOUT ----
+  function checkout() {
+    if (!validate()) {
+      document.getElementById('client-nom').scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    const phone = '+237 ' + document.getElementById('client-phone').value;
+    const nom = document.getElementById('client-nom').value;
+    const sub = cart.reduce((s,i)=>s+i.price*i.qty,0);
+    const red = promoApplied ? Math.round(sub*promoAmount/100) : 0;
+    const total = Math.max(0, sub-red+livraisonPrice);
+    const orderNum = 'LS-2024-'+String(Math.floor(Math.random()*9000)+1000);
+    const payLabels = {orange:'Orange Money 🟠',mtn:'MTN MoMo 🟡',cash:'Espèces à la livraison 💵','':"Non sélectionné"};
+
+    document.getElementById('s-order-num').textContent = orderNum;
+    document.getElementById('s-payment').textContent = payLabels[selectedPayment];
+    document.getElementById('s-total').textContent = total.toLocaleString('fr-FR')+' FCFA';
+    document.getElementById('s-date').textContent = document.getElementById('date-val').textContent;
+    document.getElementById('s-phone').textContent = phone;
+
+    // Final step marker
+    document.getElementById('ck4').classList.add('done'); document.getElementById('ck4').textContent='✓';
+    document.getElementById('conn3').classList.add('done');
+
+    document.getElementById('success-overlay').classList.add('open');
+  }
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const obs = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
+  },{threshold:0.08});
+  reveals.forEach(el=>obs.observe(el));
+
+  // Init
+  renderCart();
+  updateDeliveryDate('retrait');
+</script>
+</body>
+</html>
